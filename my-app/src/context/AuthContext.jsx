@@ -8,8 +8,8 @@ function decodeToken(token) {
     const payload = JSON.parse(atob(token.split('.')[1]))
     if (payload.exp * 1000 < Date.now()) return null
     return payload
-  } catch {
-    return null
+  } catch (err) {
+    console.error(`Failed to decode token: ${err}`)
   }
 }
 
@@ -32,23 +32,35 @@ export function AuthProvider({ children }) {
   }, [token])
 
   const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password })
-    const jwt = res.data.token
-    localStorage.setItem('token', jwt)
-    setToken(jwt)
-    setUser(decodeToken(jwt))
-    return res.data
+    try {
+      const res = await api.post('/auth/login', { email, password })
+      const jwt = res.data.token
+      localStorage.setItem('token', jwt)
+      setToken(jwt)
+      setUser(decodeToken(jwt))
+      return res.data
+    } catch (err) {
+      console.error('Login failed:', err)
+    }
   }
 
   const register = async (username, email, password) => {
-    const res = await api.post('/auth/register', { username, email, password })
-    return res.data
+    try {
+      const res = await api.post('/auth/register', { username, email, password })
+      return res.data
+    } catch (err) {
+      console.error('Registration failed:', err)
+    }
   }
 
   const logout = () => {
-    localStorage.removeItem('token')
-    setToken(null)
-    setUser(null)
+    try {
+      localStorage.removeItem('token')
+      setToken(null)
+      setUser(null)
+    } catch (err) {
+      console.error('Logout failed:', err)
+    }
   }
 
   return (
