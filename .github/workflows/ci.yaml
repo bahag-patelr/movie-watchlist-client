@@ -24,6 +24,7 @@ jobs:
           node-version: 20
 
       - run: npm ci
+        working-directory: my-app
 
 
   deploy:
@@ -50,7 +51,7 @@ jobs:
           docker build --platform linux/amd64 \
             -t ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }}:${{ github.sha }} \
             -t ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }}:latest \
-            .
+            my-app/
           docker push ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPO }}/${{ env.IMAGE }} --all-tags
 
       - name: Deploy to Cloud Run
